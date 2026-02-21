@@ -1,7 +1,8 @@
+using JetBrains.Annotations;
+using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
-using System.Collections;
-using JetBrains.Annotations;
+using UnityEngine.SceneManagement;
 
 public class PlayerControl : MonoBehaviour
 {
@@ -24,6 +25,7 @@ public class PlayerControl : MonoBehaviour
     float Gravity;
     public Animator Anim;
     public SpriteRenderer SpriteRenderer;
+    public GameObject GameOverScreen;
 
     private void Start()
     {
@@ -36,8 +38,8 @@ public class PlayerControl : MonoBehaviour
         Anim.SetTrigger("Damage");
         if (currentHealth <= 0)
         {
-            Debug.Log("You Are Dead");
-           
+            SceneManager.LoadScene("Endmenu");
+
         }
     }
     public void Heal(float amount)
@@ -102,24 +104,34 @@ public class PlayerControl : MonoBehaviour
     {
         rb.linearVelocityY = jumpforce;
     }
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void OnTriggerEnter2D(Collider2D other)
     {
-        if(collision.gameObject.CompareTag("Damage"))
+        if (other.gameObject.CompareTag("Damage"))
         {
             TakeDamage(2f);
         }
-        if(collision.gameObject.CompareTag("Speeditem"))
+        if (other.gameObject.CompareTag("Speeditem"))
         {
             StartSpeedBoost(speedboostmulti);
-            Destroy(collision.gameObject);
+            Destroy(other.gameObject);
         }
-        if (collision.gameObject.CompareTag("Death"))
+        if (other.gameObject.CompareTag("Death"))
         {
             TakeDamage(maxHealth);
         }
-        if (collision.gameObject.CompareTag("Heal"))
-            Heal(25);
-            Destroy(collision.gameObject);
+        if (other.gameObject.CompareTag("Heal"))
+            Heal(2);
+        Destroy(other.gameObject);
+        {
+            if (other.gameObject.CompareTag("FullHealth"))
+                Heal(11);
+            Destroy(other.gameObject);
+        }
+        if (other.gameObject.CompareTag("EndGame"))
+        {
+            SceneManager.LoadScene("EndingMenu");
+
+        }
     }
     public IEnumerator Dash(float dashDuration, float dashSpeed)
     {
